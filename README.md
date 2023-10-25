@@ -10,7 +10,10 @@ You can find the data and a pre-trained model at [https://portal.nersc.gov/proje
 Download the train and test data and the trained model, and you're good-to-go.
 
 ```bash
-wget -r -np -nH --cut-dirs=2 -A.nc "http://exemple.com/dossier/"
+wget -r -np -nH --cut-dirs=3  https://portal.nersc.gov/project/ClimateNet/climatenet_new/model/
+wget -r -np -nH -A.nc --cut-dirs=3 https://portal.nersc.gov/project/ClimateNet/climatenet_new/test/
+wget -r -np -nH -A.nc --cut-dirs=3 https://portal.nersc.gov/project/ClimateNet/climatenet_new/train/
+
 ```
 The high-level API makes it easy to train a model from scratch or to use our models to run inference on your own climate data. Just download the model config (or write your own) and train the model using:
 
