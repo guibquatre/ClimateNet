@@ -9,6 +9,9 @@ Install the conda environment using `conda env create -f conda_env.yml`.
 You can find the data and a pre-trained model at [https://portal.nersc.gov/project/ClimateNet/](https://portal.nersc.gov/project/ClimateNet/).
 Download the train and test data and the trained model, and you're good-to-go.
 
+```bash
+wget -r -np -nH --cut-dirs=2 -A.nc "http://exemple.com/dossier/"
+```
 The high-level API makes it easy to train a model from scratch or to use our models to run inference on your own climate data. Just download the model config (or write your own) and train the model using:
 
 ```python
