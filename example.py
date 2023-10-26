@@ -6,7 +6,7 @@ from climatenet.analyze_events import analyze_events
 from climatenet.visualize_events import visualize_events
 
 from os import path
-
+# may you please give me an improve submittable python file from the requirements and this code as example? do you best thank you
 config = Config('config.json')
 cgnet = CGNet(config)
 

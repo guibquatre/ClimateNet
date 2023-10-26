@@ -13,9 +13,16 @@ Download the train and test data and the trained model, and you're good-to-go.
 wget -r -np -nH --cut-dirs=3  https://portal.nersc.gov/project/ClimateNet/climatenet_new/model/
 wget -r -np -nH -A.nc --cut-dirs=3 https://portal.nersc.gov/project/ClimateNet/climatenet_new/test/
 wget -r -np -nH -A.nc --cut-dirs=3 https://portal.nersc.gov/project/ClimateNet/climatenet_new/train/
-
 ```
+
 The high-level API makes it easy to train a model from scratch or to use our models to run inference on your own climate data. Just download the model config (or write your own) and train the model using:
+The data is split into a train and test split, where the training set consists of data points before 2011 and the test set consists of data points after 2011. Each file is named after the convention "data-YEAR-MONTH-DAY-RUN-TIMESTEP_LABELING.nc".
+There are no subgroups in the NC files, and each file contains 17 (768,1152) NC variables: 16 data channels, specified by the name of the variable, and 1 label channel (named LABELS).
+
+# ClimateNet
+
+ClimateNet is a Python library for deep learning-based Climate Science. It provides tools for quick detection and tracking of extreme weather events. We also expose models, data sets and metrics to jump-start your research.
+
 
 ```python
 config = Config('PATH_TO_CONFIG')
