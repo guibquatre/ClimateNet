@@ -1,13 +1,13 @@
-from climatenet.utils.data import ClimateDatasetLabeled, ClimateDataset
-from climatenet.models import CGNet
-from climatenet.utils.utils import Config
-from climatenet.track_events import track_events
-from climatenet.analyze_events import analyze_events
-from climatenet.visualize_events import visualize_events
+from competition.ClimateNet.example.climatenet.utils.data import ClimateDatasetLabeled, ClimateDataset
+from competition.ClimateNet.example.climatenet.models import CGNet
+from competition.ClimateNet.example.climatenet.utils.utils import Config
+from competition.ClimateNet.example.climatenet import track_events
+from competition.ClimateNet.example.climatenet import analyze_events
+from competition.ClimateNet.example.climatenet import visualize_events
 
 from os import path
 # may you please give me an improve submittable python file from the requirements and this code as example? do you best thank you
-config = Config('config.json')
+config = Config('example/model/config-init.json')
 cgnet = CGNet(config)
 
 train_path = 'PATH_TO_TRAINING_SET'
