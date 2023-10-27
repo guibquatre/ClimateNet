@@ -22,7 +22,7 @@ class ClimateAnalysisPipeline:
 
     def load_nc_datasets(self, _training_nc_path, _inference_nc_path):
         try:
-            self.training_set = ClimateDatasetLabeled(path.join(_training_nc_path, 'train'), self.config)
+            self.training_set = ClimateDatasetLabeled(_training_nc_path, self.config)
             self.inference_set = ClimateDataset(_inference_nc_path, self.config)
             print("Datasets successfully loaded from nc files")
         except Exception as e:
