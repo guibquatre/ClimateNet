@@ -1,10 +1,12 @@
 #!/bin/bash
 while inotifywait -r -e modify /home/gui/INF6390/competition/ClimateNet/example; do
-  echo "Detected changes, syncing to remote..."
-  rclone sync /home/gui/INF6390/competition/ClimateNet/example sam:climateDoc/
+  echo "\n\n\n\n\nDetected changes, syncing to remote...\n\n\n\n"
+
+  rclone copy --ignore-existing /home/gui/INF6390/competition/ClimateNet/example sam:climateDoc/
+
   if [ $? -eq 0 ]; then
-    echo "Sync successful. Changes pushed to sam:climateDoc/"
+    echo "\n\n\n\nCopy successful. Changes pushed to sam:climateDoc/\n\n\n\n"
   else
-    echo "Sync failed."
+    echo "\n\n\n\nCopy failed.\n\n\n\n"
   fi
 done

@@ -10,6 +10,7 @@ You can find the data and a pre-trained model at [https://portal.nersc.gov/proje
 Download the train and test data and the trained model, and you're good-to-go.
 
 ```bash
+cd /ClimateNet/example
 wget -r -np -nH --cut-dirs=3  https://portal.nersc.gov/project/ClimateNet/climatenet_new/model/
 wget -r -np -nH -A.nc --cut-dirs=3 https://portal.nersc.gov/project/ClimateNet/climatenet_new/test/
 wget -r -np -nH -A.nc --cut-dirs=3 https://portal.nersc.gov/project/ClimateNet/climatenet_new/train/
