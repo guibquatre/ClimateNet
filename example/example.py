@@ -9,6 +9,7 @@ import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 
+
 class DataLoader:
     @staticmethod
     def safe_load_csv_dataset(file_path: str):
@@ -21,34 +22,40 @@ class DataLoader:
             logging.error(f"Error loading dataset: {str(e)}")
             return None, None
 
+
 class ModelSaver:
     @staticmethod
-    def save_model(model, path: str):
+    def save_model(_model, path: str):
         try:
             with open(path, 'wb') as f:
-                pickle.dump(model, f)
+                pickle.dump(_model, f)
         except Exception as e:
             logging.error(f"Error saving model: {str(e)}")
 
+
 class SubmissionSaver:
     @staticmethod
-    def save_submission(predictions):
+    def save_submission(_predictions):
         try:
             timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
             submission_file_path = f"./submission_{timestamp}.csv"
-            pd.DataFrame({'SNo': range(1, len(predictions) + 1), 'Label': predictions}).to_csv(submission_file_path, index=False)
+            pd.DataFrame({'SNo': range(1, len(_predictions) + 1),
+                          'Label': _predictions}).to_csv(submission_file_path, index=False)
         except Exception as e:
             logging.error(f"Error saving submission: {str(e)}")
+
 
 class SimpleDummyClassifier:
     def __init__(self):
         self.unique_labels = None
-    def fit(self, X: np.array, y: np.array) -> None:
+
+    def fit(self, not_used_by_purpose_X: np.array, y: np.array) -> None:
         self.unique_labels = np.unique(y)
 
-    def predict(self, X: np.array) -> np.array:
-        num_samples = X.shape[0]
+    def predict(self, not_used_by_purpose_X: np.array) -> np.array:
+        num_samples = not_used_by_purpose_X.shape[0]
         return np.random.choice(self.unique_labels, size=num_samples)
+
 
 class SimpleLogisticRegression:
     def __init__(self, learning_rate: float = 0.01, num_iterations: int = 1000):
@@ -78,6 +85,7 @@ class SimpleLogisticRegression:
         _predictions = self.sigmoid(linear_model)
         return np.round(_predictions).astype(int)
 
+
 if __name__ == '__main__':
     data_path = "/home/gui/INF6390/competition/ClimateNet/example/classification-of-extreme-weather-events-udem"
     file_names = {'train': 'train.csv', 'test': 'test.csv'}
@@ -90,7 +98,8 @@ if __name__ == '__main__':
         logging.error("Data loading failed. Cannot proceed.")
         exit(1)
 
-    train_data, val_data, train_labels, val_labels = train_test_split(train_data, train_labels, test_size=0.2, random_state=42)
+    train_data, val_data, train_labels, val_labels \
+        = train_test_split(train_data, train_labels, test_size=0.2, random_state=42)
 
     models = [
         ('Dummy', SimpleDummyClassifier()),
