@@ -4,6 +4,7 @@ import pickle
 from datetime import datetime
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
+from sklearn.preprocessing import StandardScaler
 import pandas as pd
 import numpy as np
 
@@ -25,12 +26,20 @@ class DataLoader:
 
 class ModelSaver:
     @staticmethod
-    def save_model(_model, path: str):
+    def save_model(_model, model_name: str):
+        """Save the given model to a specified location."""
         try:
-            with open(path, 'wb') as f:
+            os.makedirs("saved_models", exist_ok=True)
+            # Get the class name of the model
+            class_name = _model.__class__.__name__
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"saved_models/{model_name}_{class_name}_{timestamp}.pkl"
+            with open(filename, 'wb') as f:
                 pickle.dump(_model, f)
+            logging.info(f"Model saved to {filename}")
         except Exception as e:
             logging.error(f"Error saving model: {str(e)}")
+
 
 
 class SubmissionSaver:
@@ -66,7 +75,7 @@ class SimpleLogisticRegression:
 
     @staticmethod
     def sigmoid(z):
-        z = np.clip(z, -500, 500)  # Clip values to avoid overflow
+        z = np.clip(z, -500, 500)
         return 1 / (1 + np.exp(-z))
 
     def fit(self, X: np.array, y: np.array) -> None:
@@ -86,10 +95,7 @@ class SimpleLogisticRegression:
         return np.round(_predictions).astype(int)
 
 
-if __name__ == '__main__':
-    data_path = "/home/gui/INF6390/competition/ClimateNet/example/classification-of-extreme-weather-events-udem"
-    file_names = {'train': 'train.csv', 'test': 'test.csv'}
-
+def load_and_preprocess_data(data_path, file_names):
     loader = DataLoader()
     train_data, train_labels = loader.safe_load_csv_dataset(os.path.join(data_path, file_names['train']))
     test_data, _ = loader.safe_load_csv_dataset(os.path.join(data_path, file_names['test']))
@@ -98,14 +104,18 @@ if __name__ == '__main__':
         logging.error("Data loading failed. Cannot proceed.")
         exit(1)
 
-    train_data, val_data, train_labels, val_labels \
-        = train_test_split(train_data, train_labels, test_size=0.2, random_state=42)
+    scaler = StandardScaler().fit(train_data)
+    train_data = scaler.transform(train_data)
+    test_data = scaler.transform(test_data)
 
-    models = [
-        ('Dummy', SimpleDummyClassifier()),
-        ('SimpleLogisticRegression', SimpleLogisticRegression())
-    ]
+    return train_data, test_data, train_labels
 
+
+def split_data(train_data, train_labels, test_size=0.2, random_state=42):
+    return train_test_split(train_data, train_labels, test_size=test_size, random_state=random_state)
+
+
+def train_and_evaluate_models(models, train_data, train_labels, val_data, val_labels):
     best_f1 = 0
     best_model = None
 
@@ -119,5 +129,22 @@ if __name__ == '__main__':
             best_f1 = f1
             best_model = model
 
+    return best_model
+
+
+if __name__ == '__main__':
+    data_path = "/Users/spokboud/INF6390/competition/ClimateNet/example/classification-of-extreme-weather-events-udem"
+    file_names = {'train': 'train.csv', 'test': 'test.csv'}
+
+    train_data, test_data, train_labels = load_and_preprocess_data(data_path, file_names)
+    train_data, val_data, train_labels, val_labels = split_data(train_data, train_labels)
+
+    models = [
+        ('Dummy', SimpleDummyClassifier()),
+        ('SimpleLogisticRegression', SimpleLogisticRegression())
+    ]
+
+    best_model = train_and_evaluate_models(models, train_data, train_labels, val_data, val_labels)
+
     SubmissionSaver.save_submission(best_model.predict(test_data))
-    ModelSaver.save_model(best_model, "best_model.pkl")
+    ModelSaver.save_model(best_model, "best_model")
