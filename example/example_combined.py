@@ -167,12 +167,33 @@ class SoftLogisticRegression:
 
         # Create a one-hot encoded matrix of labels.
         # For each label, set the corresponding column in the matrix to 1, others to 0.
+        # For example, if y =[0, 2, 1] and num_classes = 3, y_one_hot would be:
+        # [
+        # [1., 0., 0.],
+        # [0., 0., 1.],
+        # [0., 1., 0.]
+        # ]
         y_one_hot = np.eye(num_classes)[y]
 
         # Loop over the specified number of iterations to optimize the weights and bias.
         for _ in range(self.num_iterations):
-            linear_model = np.dot(X, self.weights) + self.bias  # Compute the linear combination of inputs and weights.
-            probabilities = self.softmax(linear_model)  # Convert the linear scores to probabilities.
+            # This line computes the linear combination of inputs and weights.
+            # - X: input data matrix, where each row is a data point and each column is a feature.
+            # - self.weights: vector of weights, where each weight corresponds to a feature
+            # - np.dot(X, self.weights): This computes the dot product of data matrix and weight vector.
+            #   The dot product here essentially computes the weighted sum of input features for each data point.
+            # - self.bias: allows your model to have some flexibility, it shifts the linear combination by a constant.
+            # - linear_model = np.dot(X, self.weights) + self.bias:
+            # The final linear combination is the weighted sum of features plus bias term.
+            linear_model = np.dot(X, self.weights) + self.bias
+
+            # This line applies the softmax function to the linear combination computed above.
+            # The softmax function is used to convert the linear combination values into probabilities.
+            # Here's the breakdown:
+            # - linear_model: This is the result from the previous line, it's the linear combination of inputs and weights.
+            # - self.softmax(linear_model): This applies the softmax function to the linear combination. The softmax function essentially squashes the values of the linear combination into a range of 0 to 1, which makes them interpretable as probabilities.
+            # - probabilities = self.softmax(linear_model): The final probabilities variable holds the probabilities of each class for each data point. The sum of probabilities for each data point is 1, which means they represent a proper probability distribution across the classes.
+            probabilities = self.softmax(linear_model)
 
             # Compute the error between the predicted probabilities and the true labels.
             error = probabilities - y_one_hot

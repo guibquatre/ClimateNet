@@ -69,7 +69,7 @@ f1_scorer = make_scorer(f1_score, average='weighted')
 grid_search_rf = GridSearchCV(estimator=rf, param_grid=param_grid_rf,
                               scoring=f1_scorer,  # Use the custom F1 scoring function.
                               cv=5,  # Perform 5-fold cross-validation.
-                              verbose=2,  # Output messages to the console.
+                              verbose=4,  # Output messages to the console.
                               n_jobs=-1)  # Use all available cores on the machine for parallel processing.
 
 # Log the start of the grid search process to the console.
