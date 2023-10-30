@@ -3,3 +3,4 @@ train/
 test/*
 train/*
 *.pkl
+*.nc

@@ -4,7 +4,7 @@ from sklearn.ensemble import RandomForestClassifier  # Import the RandomForest a
 from sklearn.model_selection import GridSearchCV, train_test_split  # tools for hyperparameter tuning and splitting
 from sklearn.metrics import make_scorer, f1_score  # tools for custom scoring function and the F1 score metric.
 import logging  # Import logging to provide event logging to sys.stderr.
-from example_combined import DataLoader  # custom data loading class.
+from example import DataLoader  # custom data loading class.
 
 # Configure logging to log informational messages.
 logging.basicConfig(level=logging.INFO)
