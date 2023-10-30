@@ -136,8 +136,8 @@ class SoftLogisticRegression:
         self.bias = None  # Placeholder for the bias term that will be learned from the data.
 
     # Softmax function: Converts raw scores (z) to probabilities for each class.
-    # @staticmethod
-    def softmax(self, z):
+    @staticmethod
+    def softmax(z):
         # For numerical stability, subtract the maximum value of z for each sample.
         z -= np.max(z, axis=1, keepdims=True)
         # Compute the exponential of z to get unnormalized probabilities.
@@ -164,7 +164,6 @@ class SoftLogisticRegression:
         num_classes = len(np.unique(y))  # Get the number of unique labels, which equals the number of classes.
         self.weights = np.zeros((num_features, num_classes))  # Initialize the weights matrix with zeros.
         self.bias = np.zeros(num_classes)  # Initialize the bias vector with zeros.
-
         # Create a one-hot encoded matrix of labels.
         # For each label, set the corresponding column in the matrix to 1, others to 0.
         # For example, if y =[0, 2, 1] and num_classes = 3, y_one_hot would be:
@@ -174,7 +173,6 @@ class SoftLogisticRegression:
         # [0., 1., 0.]
         # ]
         y_one_hot = np.eye(num_classes)[y]
-
         # Loop over the specified number of iterations to optimize the weights and bias.
         for _ in range(self.num_iterations):
             # This line computes the linear combination of inputs and weights.
@@ -186,36 +184,78 @@ class SoftLogisticRegression:
             # - linear_model = np.dot(X, self.weights) + self.bias:
             # The final linear combination is the weighted sum of features plus bias term.
             linear_model = np.dot(X, self.weights) + self.bias
-
-            # This line applies the softmax function to the linear combination computed above.
-            # The softmax function is used to convert the linear combination values into probabilities.
-            # Here's the breakdown:
-            # - linear_model: This is the result from the previous line, it's the linear combination of inputs and weights.
-            # - self.softmax(linear_model): This applies the softmax function to the linear combination. The softmax function essentially squashes the values of the linear combination into a range of 0 to 1, which makes them interpretable as probabilities.
-            # - probabilities = self.softmax(linear_model): The final probabilities variable holds the probabilities of each class for each data point. The sum of probabilities for each data point is 1, which means they represent a proper probability distribution across the classes.
+            # Applies the softmax function to the linear combination computed above.
+            # final probabilities variable holds the probabilities of each class for each data point.
+            # The sum of probabilities for each data point is 1, which means they represent a proper
+            # probability distribution across the classes.
             probabilities = self.softmax(linear_model)
-
             # Compute the error between the predicted probabilities and the true labels.
+            # - y_one_hot: This is the true labels of the dataset, one-hot encoded to match the
+            #   format of the probabilities. In one-hot encoding, each label is converted to a
+            #   binary vector with a length equal to the number of classes. Each position in the
+            #   vector corresponds to a class, with a 1 in the position corresponding to the true
+            #   class, and 0s elsewhere.
+            #
+            # - error = probabilities - y_one_hot: By subtracting y_one_hot from probabilities,
+            #   we are computing the difference between our model's predictions and the true labels
+            #   for each data point. This difference, or error, quantifies how off our predictions
+            #   are from the true labels.
+            #
+            # The error computed here will be used in the subsequent steps of the training process.
+            # this error will be propagated back through the network during the backpropagation
+            # process to update the model's weights and bias terms. This way, with each training
+            # iteration, our model learns from its mistakes and adjusts its parameters to minimize
+            # the error, and consequently, the loss function.
+            #
+            # This line of code is a fundamental part of the training loop, and understanding the
+            # error and how it's used to update the model's parameters is key to understanding
+            # the training process of machine learning models.
             error = probabilities - y_one_hot
-
-            # Compute the gradients for the weights and bias.
+            # These gradients are used in the subsequent steps to update the model's parameters,
+            # moving them in the direction that minimizes the loss function, which is the essence
+            # of gradient descent optimization.
+            #
+            # gradients of the loss function with respect to the model's parameters (weights and bias).
+            # These gradients are essential for updating the model's parameters during the backpropagation
+            # step in the training process; derivative of the loss function:
+            # ∇𝑤(𝐿) = (1 / 𝑛) * np.dot(X.T, error) + 𝜆 * self.weights
+            #    `(1 / 𝑛)` normalizes the gradient
+            #    - np.dot(X.T, error): This term computes the matrix product of the transpose of the
+            #      input data matrix X and the error vector. This is the gradient of the loss with respect
+            #      to the weights before regularization.
+            #    - 𝜆 * self.weights: This term is the regularization part of the
+            #      gradient, which helps prevent overfitting by penalizing large weights.
             gradient_weights = (1 / num_samples) * np.dot(X.T, error) + self.regularization_strength * self.weights
+            #    This line computes the gradient of the loss function with respect to the bias.
+            #    `np.sum(error, axis=0)` computes the sum of the error vector along axis 0.
+            #      Formula: ∇𝑏(𝐿) = (1/𝑛) * Σ error
             gradient_bias = (1 / num_samples) * np.sum(error, axis=0)
-
             # Update the weights and bias using the computed gradients and the learning rate.
             self.weights -= self.learning_rate * gradient_weights
             self.bias -= self.learning_rate * gradient_bias
 
-    # Predict method: Predicts the class labels for a set of input data X.
+    # The predict method is designed to make predictions on the input data X
+    # using the trained model parameters (weights and bias).
     def predict(self, X):
-        linear_model = np.dot(X, self.weights) + self.bias  # Compute the linear combination of inputs and weights.
-        probabilities = self.softmax(linear_model)  # Convert the linear scores to probabilities.
-        return np.argmax(probabilities, axis=1)  # Return the class with the highest probability for each sample.
+        # three main steps:
+        # computing the linear model,
+        # applying the softmax function to obtain probabilities,
+        # selecting the class with the highest probability.
 
-    # Predict_proba method: Computes the probabilities for each class for a set of input data X.
-    def predict_proba(self, X):
-        linear_model = np.dot(X, self.weights) + self.bias  # Compute the linear combination of inputs and weights.
-        return self.softmax(linear_model)  # Convert the linear scores to probabilities and return them.
+        # Step 1: Compute the Linear Model
+        # The linear model computes a linear combination of the input features and the model's weights,
+        # with the bias term added.
+        # Formula: linear_model = 𝑋 • 𝑤 + 𝑏
+        # - 𝑋: Input data matrix, where each row is a data point and each column is a feature.
+        # - 𝑤: Weight vector of the model.
+        # - 𝑏: Bias term of the model.
+        linear_model = np.dot(X, self.weights) + self.bias
+        probabilities = self.softmax(linear_model)
+        # Step 3: Select the Class with the Highest Probability
+        # The argmax function is used to select the class with the highest probability for each data point.
+        # This is the final predicted class for each data point.
+        # `axis=1` selects the highest value along each row.
+        return np.argmax(probabilities, axis=1)
 
 
 def calculate_metrics(y_true, y_pred, label):
@@ -261,10 +301,10 @@ class ClimateAnalysisPipeline:
             xg_reg = xgb.XGBClassifier(objective='binary:logistic', colsample_bytree=0.3, learning_rate=0.1,
                                        max_depth=5, alpha=10, n_estimators=10)
 
-            # Run gridsearch.py before this line
-            grid_search_rf = joblib.load('model/grid_search_rf.joblib')
-            # Get the best estimator from the GridSearch
-            best_rf = grid_search_rf.best_estimator_
+            # # Run gridsearch.py before this line
+            # grid_search_rf = joblib.load('model/grid_search_rf.joblib')
+            # # Get the best estimator from the GridSearch
+            # best_rf = grid_search_rf.best_estimator_
 
             baseline_models = [
                 ('SimpleDummy', SimpleDummyClassifier()),
@@ -272,7 +312,7 @@ class ClimateAnalysisPipeline:
                 ('Dummy', DummyClassifier(strategy="uniform")),
                 ('SGD', SGDClassifier(class_weight='balanced')),
                 ('SVC', SVC(class_weight='balanced')),
-                ('RandomForest_best_rf', best_rf),
+                # ('RandomForest_best_rf', best_rf),
                 ('RandomForest', RandomForestClassifier(class_weight='balanced')),
                 ('LogisticRegression', LogisticRegression(max_iter=1000, class_weight='balanced')),
                 ('XGBoost', xg_reg)
