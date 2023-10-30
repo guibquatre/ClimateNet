@@ -7,12 +7,13 @@ from datetime import datetime
 import warnings
 from sklearn.exceptions import UndefinedMetricWarning
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.dummy import DummyClassifier
 from sklearn.svm import SVC
 from sklearn.linear_model import SGDClassifier
+import xgboost as xgb
 
 # Keep your logging setup and DataLoader class
 logging.basicConfig(level=logging.INFO)
@@ -78,25 +79,39 @@ class Preprocessor:
         self.min = None
         self.max = None
 
+    # Compute the values along each column, independently
     def fit(self, X):
+        # Compute and store the mean of each feature/column in the dataset
         self.mean = np.mean(X, axis=0)
+        # Compute and store the standard deviation of each feature/column in the dataset
         self.std = np.std(X, axis=0)
+        # Compute and store the minimum value of each feature/column in the dataset
         self.min = np.min(X, axis=0)
+        # Compute and store the maximum value of each feature/column in the dataset
         self.max = np.max(X, axis=0)
 
+    # Method to apply either standardization or normalization to the dataset
     def transform(self, X, method='standardize'):
+        # Check the method argument to determine the transformation to apply
         if method == 'standardize':
+            # Call the standardize method (not defined in provided code) to standardize the dataset
             return self.standardize(X)
         elif method == 'normalize':
+            # Call the normalize method to normalize the dataset
             return self.normalize(X)
         else:
+            # If an unknown method is provided, raise a ValueError with a descriptive message
             raise ValueError(f"Unknown method: {method}")
 
     def standardize(self, X):
-        return (X - self.mean) / self.std
+        # Standardization formula: (X - mean) / std
+        # Ensure to add a small value to the denominator to avoid division by zero
+        return (X - self.mean) / (self.std + 1e-8)
 
     def normalize(self, X):
-        return (X - self.min) / (self.max - self.min)
+        # Normalization formula: (X - min) / (max - min)
+        # Ensure to add a small value to the denominator to avoid division by zero
+        return (X - self.min) / (self.max - self.min + 1e-8)
 
 
 class SimpleDummyClassifier:
@@ -106,53 +121,80 @@ class SimpleDummyClassifier:
     def fit(self, _: np.array, y: np.array) -> None:
         self.unique_labels = np.unique(y)
 
-    def predict(self, not_used_by_purpose_X: np.array) -> np.array:
-        num_samples = not_used_by_purpose_X.shape[0]
+    def predict(self, _: np.array) -> np.array:
+        num_samples = _.shape[0]
         return np.random.choice(self.unique_labels, size=num_samples)
 
 
-class SimpleLogisticRegression:
-    def __init__(self, learning_rate=0.01, num_iterations=1000, regularization_strength=0.1, class_weights=None):
-        self.learning_rate = learning_rate
-        self.num_iterations = num_iterations
-        self.regularization_strength = regularization_strength
-        self.class_weights = class_weights  # New class_weights parameter
-        self.weights = None
-        self.bias = 0
+class SoftLogisticRegression:
+    # initialize the hyperparameters and sets up the initial values of weights and bias.
+    def __init__(self, learning_rate=0.01, num_iterations=1000, regularization_strength=0.1):
+        self.learning_rate = learning_rate  # step size used during optimization to find the minimum of loss function.
+        self.num_iterations = num_iterations  # number of steps the optimizer will take to minimize loss function.
+        self.regularization_strength = regularization_strength  # Controls regularization strength, prevent overfitting.
+        self.weights = None  # Placeholder for the weights vector that will be learned from the data.
+        self.bias = None  # Placeholder for the bias term that will be learned from the data.
 
-    @staticmethod
-    def sigmoid(z):
-        z = np.clip(z, -500, 500)
-        return 1 / (1 + np.exp(-z))
+    # Softmax function: Converts raw scores (z) to probabilities for each class.
+    # @staticmethod
+    def softmax(self, z):
+        # For numerical stability, subtract the maximum value of z for each sample.
+        z -= np.max(z, axis=1, keepdims=True)
+        # Compute the exponential of z to get unnormalized probabilities.
+        exp_z = np.exp(z)
+        # Sum the unnormalized probabilities for each sample to normalize them.
+        sum_exp_z = np.sum(exp_z, axis=1, keepdims=True)
+        # Divide each unnormalized probability by the sum to get the normalized probabilities.
+        return exp_z / sum_exp_z
+    # Suppose z = [[1, 2, 3], [1, 2, 3]], i.e., two samples each with three classes.
+    # 1. Subtract the max value along each sample:
+    #    z = [[-2, -1, 0], [-2, -1, 0]]
+    # 2. Compute exp(z):
+    #    exp_z = [[0.13533528, 0.36787944, 1.], [0.13533528, 0.36787944, 1.]]
+    # 3. Sum exp(z) along each sample:
+    #    sum_exp_z = [[1.50321472], [1.50321472]]
+    # 4. Normalize to get the final probabilities:
+    #    softmax(z) = [[0.09, 0.24, 0.67], [0.09, 0.24, 0.67]]
 
+    # Fit method: Trains the model using the training data (X, y).
     def fit(self, X, y):
+        y = y.astype(int)  # Convert the labels to integer type in case they are not for indexing
+        # Get the dimensions of the input data: number of samples and number of features.
         num_samples, num_features = X.shape
-        self.weights = np.zeros(num_features)
-        y = y.reshape(-1, 1)  # Ensure y is a column vector
+        num_classes = len(np.unique(y))  # Get the number of unique labels, which equals the number of classes.
+        self.weights = np.zeros((num_features, num_classes))  # Initialize the weights matrix with zeros.
+        self.bias = np.zeros(num_classes)  # Initialize the bias vector with zeros.
 
+        # Create a one-hot encoded matrix of labels.
+        # For each label, set the corresponding column in the matrix to 1, others to 0.
+        y_one_hot = np.eye(num_classes)[y]
+
+        # Loop over the specified number of iterations to optimize the weights and bias.
         for _ in range(self.num_iterations):
-            linear_model = np.dot(X, self.weights) + self.bias
-            predictions = self.sigmoid(linear_model).reshape(-1, 1)  # Ensure predictions is a column vector
+            linear_model = np.dot(X, self.weights) + self.bias  # Compute the linear combination of inputs and weights.
+            probabilities = self.softmax(linear_model)  # Convert the linear scores to probabilities.
 
-            # Get class weights
-            if self.class_weights is not None:
-                weights_vector = np.array([self.class_weights[label] for label in y.flatten()]).reshape(-1, 1)
-            else:
-                weights_vector = np.ones_like(y)
+            # Compute the error between the predicted probabilities and the true labels.
+            error = probabilities - y_one_hot
 
-            # Compute gradients (with L2 regularization and class weights)
-            gradient_weights = (1 / num_samples) * np.dot(X.T, weights_vector * (
-                        predictions - y)).flatten() + self.regularization_strength * self.weights
-            gradient_bias = (1 / num_samples) * np.sum(weights_vector * (predictions - y))
+            # Compute the gradients for the weights and bias.
+            gradient_weights = (1 / num_samples) * np.dot(X.T, error) + self.regularization_strength * self.weights
+            gradient_bias = (1 / num_samples) * np.sum(error, axis=0)
 
-            # Update weights and bias
+            # Update the weights and bias using the computed gradients and the learning rate.
             self.weights -= self.learning_rate * gradient_weights
             self.bias -= self.learning_rate * gradient_bias
 
+    # Predict method: Predicts the class labels for a set of input data X.
     def predict(self, X):
-        linear_model = np.dot(X, self.weights) + self.bias
-        predictions = self.sigmoid(linear_model)
-        return np.round(predictions).astype(int)  # Threshold at 0.5
+        linear_model = np.dot(X, self.weights) + self.bias  # Compute the linear combination of inputs and weights.
+        probabilities = self.softmax(linear_model)  # Convert the linear scores to probabilities.
+        return np.argmax(probabilities, axis=1)  # Return the class with the highest probability for each sample.
+
+    # Predict_proba method: Computes the probabilities for each class for a set of input data X.
+    def predict_proba(self, X):
+        linear_model = np.dot(X, self.weights) + self.bias  # Compute the linear combination of inputs and weights.
+        return self.softmax(linear_model)  # Convert the linear scores to probabilities and return them.
 
 
 def calculate_metrics(y_true, y_pred, label):
@@ -170,15 +212,6 @@ def classification_report_custom(y_true, y_pred):
     for label in labels:
         precision, recall, f1 = calculate_metrics(y_true, y_pred, label)
         print(f'Label: {label}, Precision: {precision:.2f}, Recall: {recall:.2f}, F1: {f1:.2f}')
-
-
-# def train_test_split(X: np.array, y: np.array, test_size=0.2, random_state=42):
-#     np.random.seed(random_state)
-#     shuffled_indices = np.random.permutation(len(X))
-#     test_set_size = int(len(X) * test_size)
-#     test_indices = shuffled_indices[:test_set_size]
-#     train_indices = shuffled_indices[test_set_size:]
-#     return X[train_indices], X[test_indices], y[train_indices], y[test_indices]
 
 
 class ClimateAnalysisPipeline:
@@ -203,14 +236,25 @@ class ClimateAnalysisPipeline:
                 test_size=0.2, random_state=42
             )
 
+            # Adding XGBoost to the model list
+            xg_reg = xgb.XGBClassifier(objective='binary:logistic', colsample_bytree=0.3, learning_rate=0.1,
+                                       max_depth=5, alpha=10, n_estimators=10)
+
+            # Run gridsearch.py before this line
+            grid_search_rf = joblib.load('model/grid_search_rf.joblib')
+            # Get the best estimator from the GridSearch
+            best_rf = grid_search_rf.best_estimator_
+
             baseline_models = [
                 ('SimpleDummy', SimpleDummyClassifier()),
-                ('SimpleLogisticRegression', SimpleLogisticRegression()),
+                ('SoftLogisticRegression', SoftLogisticRegression()),
                 ('Dummy', DummyClassifier(strategy="uniform")),
                 ('SGD', SGDClassifier(class_weight='balanced')),
                 ('SVC', SVC(class_weight='balanced')),
+                ('RandomForest_best_rf', best_rf),
                 ('RandomForest', RandomForestClassifier(class_weight='balanced')),
-                ('LogisticRegression', LogisticRegression(max_iter=1000, class_weight='balanced'))
+                ('LogisticRegression', LogisticRegression(max_iter=1000, class_weight='balanced')),
+                ('XGBoost', xg_reg)
             ]
 
             best_f1 = 0.0
