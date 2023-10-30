@@ -258,20 +258,56 @@ class SoftLogisticRegression:
         return np.argmax(probabilities, axis=1)
 
 
+# This function calculates the precision, recall, and F1 score for a specific class label
+# based on the true labels and predicted labels. These metrics are crucial for evaluating
+# the performance of classification models, especially in imbalanced datasets.
+    # - y_true: The true labels of the data.
+    # - y_pred: The labels predicted by the model.
+    # - label: The specific class label for which we are calculating the metrics.
 def calculate_metrics(y_true, y_pred, label):
+    # Step 1: Calculate True Positives (TP)
+    # True Positives are the correctly predicted instances of the specified class label.
+    # Formula: TP = Σ(y_true == label & y_pred == label)
     tp = np.sum((y_true == label) & (y_pred == label))
+    # Step 2: Calculate False Positives (FP)
+    # False Positives are the instances incorrectly predicted as the specified class label.
+    # Formula: FP = Σ(y_true ≠ label & y_pred == label)
     fp = np.sum((y_true != label) & (y_pred == label))
+    # Step 3: Calculate False Negatives (FN)
+    # False Negatives are the instances of the specified class label incorrectly predicted as other labels.
+    # Formula: FN = Σ(y_true == label & y_pred ≠ label)
     fn = np.sum((y_true == label) & (y_pred != label))
+    # Step 4: Calculate Precision
+    # Precision is the ratio of True Positives to the sum of True Positives and False Positives.
+    # It measures the accuracy of the positive predictions.
     precision = tp / (tp + fp) if tp + fp > 0 else 0.0
+    # Step 5: Calculate Recall
+    # Recall is the ratio of True Positives to the sum of True Positives and False Negatives.
+    # It measures the ability of the model to identify all relevant instances.
     recall = tp / (tp + fn) if tp + fn > 0 else 0.0
+    # Step 6: Calculate F1 Score
+    # The F1 Score is the harmonic mean of precision and recall, which provides a balance between the two metrics.
     f1 = 2 * (precision * recall) / (precision + recall) if precision + recall > 0 else 0.0
     return precision, recall, f1
 
 
+# Generate a classification report for a multi-class classification task.
+# This report provides key metrics such as Precision,
+# Recall, and F1 Score for each class label in the dataset, which are essential for evaluating
+# the performance of the classification model.
+    # Inputs:
+    # - y_true: A NumPy array or list containing the true labels for the dataset.
+    # - y_pred: A NumPy array or list containing the predicted labels for the dataset as outputted by the model.
 def classification_report_custom(y_true, y_pred):
+    # Step 1: Identify Unique Labels
+    # Identify all the unique class labels present in the true labels dataset.
+    # This step helps in determining for which labels the metrics need to be calculated.
     labels = np.unique(y_true)
+
+    # Step 2: Iterate Over Each Unique Label
     for label in labels:
         precision, recall, f1 = calculate_metrics(y_true, y_pred, label)
+        # Step 3: Display Metrics for Each Label
         print(f'Label: {label}, Precision: {precision:.2f}, Recall: {recall:.2f}, F1: {f1:.2f}')
 
 
