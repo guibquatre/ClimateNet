@@ -1,0 +1,12 @@
+name: climate
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - numpy
+  - pip:
+    - xgboost
+    - pandas
+    - scikit-learn
+    - joblib
+    - logging
