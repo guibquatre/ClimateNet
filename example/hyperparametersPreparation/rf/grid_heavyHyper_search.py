@@ -40,7 +40,7 @@ class DataLoader:
 logging.basicConfig(level=logging.INFO)
 
 # Define the path to the data.
-data_path = "../classification-of-extreme-weather-events-udem"
+data_path = "../../classification-of-extreme-weather-events-udem"
 file_names = {'train': 'train.csv', 'test': 'test.csv'}
 
 # Instantiate a DataLoader object.
