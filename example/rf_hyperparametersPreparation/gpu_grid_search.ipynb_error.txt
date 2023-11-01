@@ -1,0 +1,80 @@
+/usr/local/lib/python3.10/site-packages/distributed/node.py:182: UserWarning: Port 8787 is already in use.
+Perhaps you already have a cluster running?
+Hosting the HTTP server on port 43721 instead
+  warnings.warn(
+/usr/local/lib/python3.10/site-packages/distributed/client.py:1390: VersionMismatchWarning: Mismatched versions found
+
++---------+--------+-----------+---------+
+| Package | Client | Scheduler | Workers |
++---------+--------+-----------+---------+
+| numpy   | 1.23.5 | 1.23.5    | 1.24.4  |
+| tornado | 6.3.2  | 6.3.2     | 6.3.3   |
++---------+--------+-----------+---------+
+  warnings.warn(version_module.VersionMismatchWarning(msg[0]["warning"]))
+INFO:root:Starting Grid Search...
+[{'handle': <pylibraft.common.handle.Handle object at 0x7fcd0893cb10>, 'verbose': 4, 'output_type': 'input', 'n_estimators': 100, 'max_depth': 16, 'max_features': 'auto', 'n_bins': 128, 'split_criterion': 0, 'min_samples_leaf': 1, 'min_samples_split': 2, 'min_impurity_decrease': 0.0, 'bootstrap': True, 'max_samples': 1.0, 'max_leaves': -1, 'accuracy_metric': None, 'max_batch_size': 4096, 'n_streams': 4, 'dtype': None, 'min_weight_fraction_leaf': None, 'n_jobs': None, 'max_leaf_nodes': None, 'min_impurity_split': None, 'oob_score': None, 'random_state': 0, 'warm_start': None, 'class_weight': None, 'criterion': None}]
+2023-10-31 15:03:53,311 - distributed.protocol.pickle - ERROR - Failed to serialize <ToPickle: HighLevelGraph with 1 layers.
+<dask.highlevelgraph.HighLevelGraph object at 0x7fccec35a8c0>
+ 0. 140518588960768
+>.
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/distributed/protocol/pickle.py", line 63, in dumps
+    result = pickle.dumps(x, **dump_kwargs)
+  File "/usr/local/lib/python3.10/site-packages/cuml/dask/common/base.py", line 59, in __getstate__
+    internal_model = self._get_internal_model().result()
+AttributeError: 'NoneType' object has no attribute 'result'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/distributed/protocol/pickle.py", line 68, in dumps
+    pickler.dump(x)
+  File "/usr/local/lib/python3.10/site-packages/distributed/protocol/pickle.py", line 24, in reducer_override
+    if _always_use_pickle_for(obj):
+  File "/usr/local/lib/python3.10/site-packages/distributed/protocol/pickle.py", line 45, in _always_use_pickle_for
+    return isinstance(x, (str, bytes))
+RecursionError: maximum recursion depth exceeded in __instancecheck__
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/site-packages/distributed/protocol/pickle.py", line 81, in dumps
+    result = cloudpickle.dumps(x, **dump_kwargs)
+  File "/usr/local/lib/python3.10/site-packages/cloudpickle/cloudpickle.py", line 1479, in dumps
+    cp.dump(obj)
+  File "/usr/local/lib/python3.10/site-packages/cloudpickle/cloudpickle.py", line 1245, in dump
+    return super().dump(obj)
+  File "/usr/local/lib/python3.10/site-packages/cuml/dask/common/base.py", line 59, in __getstate__
+    internal_model = self._get_internal_model().result()
+AttributeError: 'NoneType' object has no attribute 'result'
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+/usr/local/lib/python3.10/site-packages/distributed/protocol/pickle.py in dumps(x, buffer_callback, protocol)
+     62         try:
+---> 63             result = pickle.dumps(x, **dump_kwargs)
+     64         except Exception:
+
+14 frames
+AttributeError: 'NoneType' object has no attribute 'result'
+
+During handling of the above exception, another exception occurred:
+
+RecursionError                            Traceback (most recent call last)
+RecursionError: maximum recursion depth exceeded in __instancecheck__
+
+During handling of the above exception, another exception occurred:
+
+AttributeError                            Traceback (most recent call last)
+AttributeError: 'NoneType' object has no attribute 'result'
+
+The above exception was the direct cause of the following exception:
+
+TypeError                                 Traceback (most recent call last)
+/usr/local/lib/python3.10/site-packages/distributed/protocol/serialize.py in serialize(x, serializers, on_error, context, iterate_collection)
+    372         return {"serializer": "error"}, frames
+    373     elif on_error == "raise":
+--> 374         raise TypeError(msg, str(x)[:10000]) from exc
+    375     else:  # pragma: nocover
+    376         raise ValueError(f"{on_error=}; expected 'message' or 'raise'")
+
+TypeError: ('Could not serialize object of type HighLevelGraph', '<ToPickle: HighLevelGraph with 1 layers.\n<dask.highlevelgraph.HighLevelGraph object at 0x7fccec35a8c0>\n 0. 140518588960768\n>')
