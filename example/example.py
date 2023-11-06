@@ -215,19 +215,38 @@ class ClimateAnalysisPipeline:
             xg_reg = xgb.XGBClassifier(objective='binary:logistic', colsample_bytree=0.3, learning_rate=0.1,
                                        max_depth=5, alpha=10, n_estimators=10)
             # Run gridsearch.py before this line
-            grid_search_rf = joblib.load('saved_models/grid_search_rf_final.joblib')
+            grid_search_rf = joblib.load('remise/grid_search_rf_final.joblib')
             # Get the best estimator from the GridSearch
             best_rf = grid_search_rf.best_estimator_
 
+            # Initialize a list to hold tuples of model names and their instances.
             baseline_models = [
-                # ('SimpleDummy', SimpleDummyClassifier()),
-                # ('SoftLogisticRegression', SoftLogisticRegression()),
-                # ('Dummy', DummyClassifier(strategy="uniform")),
-                # ('SGD', SGDClassifier(class_weight='balanced')),
-                # ('SVC', SVC(class_weight='balanced')),
+                # Classifier likely used for establishing a basic benchmark.
+                # It does not learn from the data and predicts using a simple heuristic.
+                ('SimpleDummy', SimpleDummyClassifier()),
+                # A variant of logistic regression tailored to provide a probabilistic
+                # output, implying a focus on modeling the uncertainty in predictions.
+                ('SoftLogisticRegression', SoftLogisticRegression()),
+                # A classifier that disregards input features and predicts uniformly at random,
+                # ensuring no class is favored; primarily for baseline comparison.
+                ('Dummy', DummyClassifier(strategy="uniform")),
+                # Implements a linear model with stochastic gradient descent learning, with
+                # balanced class weights to correct for any imbalance in the dataset.
+                ('SGD', SGDClassifier(class_weight='balanced')),
+                # A robust classifier that finds an optimal hyperplane for class separation,
+                # applying balanced weights to account for unequal class representation.
+                ('SVC', SVC(class_weight='balanced')),
+                # A pre-optimized RandomForest model, indicating prior hyperparameter tuning
+                # or feature selection to maximize the model's predictive accuracy.
                 ('RandomForest_best_rf', best_rf),
+                # An ensemble of decision trees with class weights balanced to improve the
+                # decision-making process where data is skewed across different classes.
                 ('RandomForest', RandomForestClassifier(class_weight='balanced')),
-                # ('LogisticRegression', LogisticRegression(max_iter=1000, class_weight='balanced')),
+                # A logistic regression model configured for a high number of iterations and
+                # balanced class weights, suitable for complex or imbalanced datasets.
+                ('LogisticRegression', LogisticRegression(max_iter=1000, class_weight='balanced')),
+                # An advanced gradient boosting framework that is designed for speed and
+                # performance, often outperforming other models on structured datasets.
                 ('XGBoost', xg_reg)
             ]
 

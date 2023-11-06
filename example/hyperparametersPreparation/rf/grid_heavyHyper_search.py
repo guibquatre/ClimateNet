@@ -116,7 +116,7 @@ logging.info("Grid Search complete.")
 # Save the fitted GridSearchCV object to disk for later use.
 # This object contains the best set of hyperparameters found during the grid search,
 # as well as the fitted RandomForestClassifier with those hyperparameters.
-joblib.dump(grid_search_rf, '../../saved_models/grid_search_rf_final.joblib')
+joblib.dump(grid_search_rf, '../../remise/grid_search_rf_final.joblib')
 
 # Log the saving of the GridSearchCV object to the console.
 logging.info("Saved GridSearchCV object to grid_search_rf.joblib.")

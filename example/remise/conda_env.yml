@@ -1,0 +1,12 @@
+name: climate-submission-env
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - numpy
+  - pip:
+    - xgboost
+    - scikit-learn
+    - joblib
+    - logging
+    - optula
