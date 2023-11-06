@@ -215,18 +215,19 @@ class ClimateAnalysisPipeline:
             xg_reg = xgb.XGBClassifier(objective='binary:logistic', colsample_bytree=0.3, learning_rate=0.1,
                                        max_depth=5, alpha=10, n_estimators=10)
             # Run gridsearch.py before this line
-            grid_search_rf = joblib.load('saved_models/RandomForestClassifier_best_custom_rf_mac_m2.joblib')
+            grid_search_rf = joblib.load('saved_models/grid_search_rf_final.joblib')
             # Get the best estimator from the GridSearch
             best_rf = grid_search_rf.best_estimator_
+
             baseline_models = [
-                ('SimpleDummy', SimpleDummyClassifier()),
-                ('SoftLogisticRegression', SoftLogisticRegression()),
-                ('Dummy', DummyClassifier(strategy="uniform")),
-                ('SGD', SGDClassifier(class_weight='balanced')),
-                ('SVC', SVC(class_weight='balanced')),
-                # ('RandomForest_best_rf', best_rf),
+                # ('SimpleDummy', SimpleDummyClassifier()),
+                # ('SoftLogisticRegression', SoftLogisticRegression()),
+                # ('Dummy', DummyClassifier(strategy="uniform")),
+                # ('SGD', SGDClassifier(class_weight='balanced')),
+                # ('SVC', SVC(class_weight='balanced')),
+                ('RandomForest_best_rf', best_rf),
                 ('RandomForest', RandomForestClassifier(class_weight='balanced')),
-                ('LogisticRegression', LogisticRegression(max_iter=1000, class_weight='balanced')),
+                # ('LogisticRegression', LogisticRegression(max_iter=1000, class_weight='balanced')),
                 ('XGBoost', xg_reg)
             ]
 

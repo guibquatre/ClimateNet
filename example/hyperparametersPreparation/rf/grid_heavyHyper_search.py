@@ -40,7 +40,7 @@ class DataLoader:
 logging.basicConfig(level=logging.INFO)
 
 # Define the path to the data.
-data_path = "../../classification-of-extreme-weather-events-udem"
+data_path = "../..j/classification-of-extreme-weather-events-udem"
 file_names = {'train': 'train.csv', 'test': 'test.csv'}
 
 # Instantiate a DataLoader object.
@@ -99,7 +99,7 @@ f1_scorer = make_scorer(f1_score, average='weighted')
 grid_search_rf = GridSearchCV(estimator=rf, param_grid=param_grid_rf,
                               scoring=f1_scorer,  # Use the custom F1 scoring function.
                               cv=5,  # Perform 5-fold cross-validation.
-                              verbose=4,  # Output messages to the console.
+                              verbose=5,  # Output messages to the console.
                               n_jobs=-1)  # Use all available cores on the machine for parallel processing.
 
 # Log the start of the grid search process to the console.
@@ -116,7 +116,7 @@ logging.info("Grid Search complete.")
 # Save the fitted GridSearchCV object to disk for later use.
 # This object contains the best set of hyperparameters found during the grid search,
 # as well as the fitted RandomForestClassifier with those hyperparameters.
-joblib.dump(grid_search_rf, 'model/grid_search_rf.joblib')
+joblib.dump(grid_search_rf, '../../saved_models/grid_search_rf_final.joblib')
 
 # Log the saving of the GridSearchCV object to the console.
 logging.info("Saved GridSearchCV object to grid_search_rf.joblib.")
