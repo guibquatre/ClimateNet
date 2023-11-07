@@ -3,10 +3,11 @@ channels:
   - defaults
   - conda-forge
 dependencies:
+  - python=3.11
   - numpy
+  - optuna
+  - pip
   - pip:
     - xgboost
     - scikit-learn
     - joblib
-    - logging
-    - optula

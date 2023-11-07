@@ -1,15 +1,9 @@
 ## SAM BLOUIN 20035269
 
-### Requirements
+### Conda is required to run the program
 ```bash
-conda env create -f conda_env.yaml
-conda activate climate
-conda env list
-```
-
-## Run code
-```bash
-python example.py
+conda env create -f conda_env.yml
+conda run -n climate-submission-env python example.py
 ```
 
 | Files                       |                                  directory location or meaning |
