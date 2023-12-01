@@ -1,0 +1,48 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/Applications/CLion.app/Contents/bin/ninja/mac/ninja -G Ninja -S /Users/spokboud/projectivefriction -B /Users/spokboud/projectivefriction/cmake-build-debug
+-- The C compiler identification is AppleClang 15.0.0.15000040
+-- The CXX compiler identification is AppleClang 15.0.0.15000040
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /Library/Developer/CommandLineTools/usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /Library/Developer/CommandLineTools/usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+Building mode: Debug
+-- Could NOT find Doxygen (missing: DOXYGEN_EXECUTABLE) 
+CMake Warning at CMakeLists.txt:60 (find_package):
+  By not providing "FindCGAL.cmake" in CMAKE_MODULE_PATH this project has
+  asked CMake to find a package configuration file provided by "CGAL", but
+  CMake did not find one.
+
+  Could not find a package configuration file provided by "CGAL" with any of
+  the following names:
+
+    CGALConfig.cmake
+    cgal-config.cmake
+
+  Add the installation prefix of "CGAL" to CMAKE_PREFIX_PATH or set
+  "CGAL_DIR" to a directory containing one of the above files.  If "CGAL"
+  provides a separate development package or SDK, be sure it has been
+  installed.
+
+
+CMake Error at CMakeLists.txt:61 (include):
+  include called with wrong number of arguments.  include() only takes one
+  file.
+
+
+-- Found Boost: /opt/homebrew/lib/cmake/Boost-1.82.0/BoostConfig.cmake (found version "1.82.0") found components: filesystem 
+-- Could NOT find OpenMP_C (missing: OpenMP_C_FLAGS OpenMP_C_LIB_NAMES) 
+-- Could NOT find OpenMP_CXX (missing: OpenMP_CXX_FLAGS OpenMP_CXX_LIB_NAMES) 
+-- Could NOT find OpenMP (missing: OpenMP_C_FOUND OpenMP_CXX_FOUND) 
+CMake Error at cmake/modules/Findrapidjson.cmake:94 (message):
+  Could not find rapidjson
+Call Stack (most recent call first):
+  CMakeLists.txt:88 (find_package)
+
+
+-- Configuring incomplete, errors occurred!

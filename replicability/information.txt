@@ -1,0 +1,3 @@
+Title: Projective Dynamics with Dry Frictional Contact
+Authors: Mickaël Ly, Jean Jouve, Laurence Boissieux, Florence Bertails-Descoubes
+Operating System: The code was tested on Ubuntu 20.04.1 LTS.

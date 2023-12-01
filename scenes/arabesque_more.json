@@ -1,0 +1,39 @@
+{
+    "Parameters" : {
+        "Frame number" : 886,
+        "LocalGlobal" : 30,
+        "Timestep" : 2e-3,
+        "Type" : "friction",
+        "Steps per frame" : 8,
+        "Self-collision" : true,
+        "Self-collision tolerance" : 1.2e-2,
+        "Gravity" : [0.0, 0.0, -9.81]
+    },
+    
+    "Friction coefficients" : [
+        [ 0.3, 0.3 ],
+        [ 0.3, 0.3 ]
+    ],
+    
+    "Meshes" : [
+        {
+            "Obj filename" : "../mesh/Kyra_Arabesque_Dress.obj",
+            "Area Density" : 0.1,
+            "Bending" : 0.5e-4,
+            "Stretching" : 5.0e1,
+            "Material Identifier" : 0
+        }
+        
+    ],
+    "Obstacles" : [
+        {
+            "Type" : "Moving Mesh",
+            "Obj Prefix" : "../mesh/Kyra_Arabesque/tr_Kyra_Arabesque_",
+            "Suffix Size" : 6,
+            "Number Frame" : 856,
+            "Time Between Frame" : 16e-3,
+            "Material Identifier" : 1,
+            "Collision tolerance" : 1.5e-2
+        }
+    ]
+}

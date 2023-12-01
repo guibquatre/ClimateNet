@@ -1,80 +1,129 @@
-# ClimateNet
+# Projective Dynamics with Dry Frictional Contact
 
-ClimateNet is a Python library for deep learning-based Climate Science. It provides tools for quick detection and tracking of extreme weather events. We also expose models, data sets and metrics to jump-start your research.
+![](https://hal.archives-ouvertes.fr/hal-02563307v2/file/projectiveDynamicsDryFrictionalContact.jpg)
+
+This repository contains the code associated with the paper
+[Projective Dynamics with Dry Frictional Contact](https://hal.archives-ouvertes.fr/hal-02563307)
+published at SIGGRAPH 2020.
+
+The code and data necessary to replicate the figures in the article is in the
+replicability folder.
+
+## Compilation
+
+### Submodules
+
+If you have not cloned the repository with the command
+`git clone --recurse-submodules`, you have to update the submodules. To do this,
+run the following commands:
+
+```
+git submodule init
+git submodule update
+```
+
+### Install dependencies :
+
+- Eigen (tested with 3.3.7)
+- Doxygen _optional_ For building the documentation.
+- Cgal
+- Boost
+- Openmp _optional_
+
+### Compilation of the project
+
+To compile the project, run the following commands:
+
+```
+mkdir build
+cd build
+cmake ..
+make
+```
+
+Note that by default the build type is Debug. If you want to build in release
+mode, instead of `cmake ..` run
+
+```
+cmake -DCMAKE_BUILD_TYPE=Release ..
+```
 
 ## Usage
 
-Install the conda environment using `conda env create -f conda_env.yml`.
+One argument only is expected:
 
-You can find the data and a pre-trained model at [https://portal.nersc.gov/project/ClimateNet/](https://portal.nersc.gov/project/ClimateNet/).
-Download the train and test data and the trained model, and you're good-to-go.
+- Path to a json configuration file. You can find documentation on the structure
+  of the JSON configuration file [here](./Configuration.md). Some json
+  configuration files can be found in
+  [the `scenes` directory of this repository](./scenes).
 
-```bash
-cd /ClimateNet/example
-wget -r -np -nH --cut-dirs=3  https://portal.nersc.gov/project/ClimateNet/climatenet_new/model/
-wget -r -np -nH -A.nc --cut-dirs=3 https://portal.nersc.gov/project/ClimateNet/climatenet_new/test/
-wget -r -np -nH -A.nc --cut-dirs=3 https://portal.nersc.gov/project/ClimateNet/climatenet_new/train/
+```
+./ProjectiveFriction path/to/configuration_file.json
 ```
 
-The high-level API makes it easy to train a model from scratch or to use our models to run inference on your own climate data. Just download the model config (or write your own) and train the model using:
-The data is split into a train and test split, where the training set consists of data points before 2011 and the test set consists of data points after 2011. Each file is named after the convention "data-YEAR-MONTH-DAY-RUN-TIMESTEP_LABELING.nc".
-There are no subgroups in the NC files, and each file contains 17 (768,1152) NC variables: 16 data channels, specified by the name of the variable, and 1 label channel (named LABELS).
+### Quick start example
 
-# ClimateNet
+For example, to run the scenario which produces the teaser of the paper, enter
+the following commands (it will take around 20-30 minutes to complete):
 
-ClimateNet is a Python library for deep learning-based Climate Science. It provides tools for quick detection and tracking of extreme weather events. We also expose models, data sets and metrics to jump-start your research.
-
-
-```python
-config = Config('PATH_TO_CONFIG')
-model = CGNet(config)
-
-training_set = ClimateDatasetLabeled('PATH_TO_TRAINING_SET', model.config)
-inference_set = ClimateDataset('PATH_TO_INFERENCE_SET', model.config)
-
-model.train(training_set)
-model.save_model('PATH_TO_SAVE')
-
-predictions = model.predict(inference_set)
+```
+cd replicability
+./ProjectiveFriction ./scenes/Square3/mu_0.1.json > /dev/null
 ```
 
-You can find an example of how to load our trained model for inference in example.py.
+### Output
 
-If you are familiar with PyTorch and want a higher degree of control over training procedures, data flow or other aspects of your project, we suggest you use our lower-level modules.
-The CGNetModule and Dataset classes conform to what you would expect from standard PyTorch, which means that you can take whatever parts you need and swap out the others for your own building blocks. A quick example of this:
+The executable will create a directory `dataX` in the current directory, where
+`X` is the smaller number greater or equal than 0 for which there doesn't
+already exists a `dataX` directory. This means that each run of the `./fpd` will
+create a new directory. This way, you are not overwriting your previous
+simulation data.
 
-```python
-training_data = ... # Plug in your own Dataloader and data handling
-cgnet = CGNetModule(classes=3, channels=4)
-optimizer = Adam(cgnet.parameters(), ...)      
-for features, labels in epoch_loader:
-    outputs = softmax(cgnet(features), 1)
+After the executable has terminated, this directory has the following structure:
 
-    loss = jaccard_loss(outputs, labels) # Or plug in your own loss...
-    loss.backward()
-    optimizer.step()
-    optimizer.zero_grad() 
+```
+datax/
+  configuration_file.json
+  stats.txt
+  output/
+    out_XXXXXX.obj
 ```
 
-## Data
+- `configuration_file.json` is a copy of the configuration file passed to the
+  executable.
+- `stats.txt` contains data concerning the execution time of the simulation as
+  well as the number of self-collision. See
+  [the related documentation](./Stats.md) for more detail on its structure.
+- `output/` contains `obj` file describing the state of the simulated mesh at
+  each time frame.
 
-Climate data can be complex. In order to avoid hard-to-debug issues when reading and interpreting the data, we require the data to adhere to a strict interface when using the high-level abstractions. We're working on conforming to the NetCDF Climate and Forecast Metadata Conventions in order to provide maximal flexibility while still making sure that your data gets interpreted the right way by the models.
+### Looking at the simulation
 
-## Configurations
+If you want to see an animation of the simulation, we suggest the following
+method (there are probably other suitable methods). For that you will need to
+install
 
-When creating a (high-level) model, you need to specify a configuration - on one hand this encourages reproducibility and makes it easy to track and share experiments, on the other hand it helps you avoid issues like running a model that was trained on one variable on an unrelated variable or using the wrong normalisation statistics.
-See config.json for an example configuration file.
+- [Paraview](https://www.paraview.org/), which is likely to be already present
+  on the package repositories of your Linux distribution.
+- [`obj2vtk`](https://gitlab.inria.fr/elan-public-code/obj2vtk), which you can
+  install from its repository.
 
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+First convert the `obj` files produced by the executable to `vtk` files using
+`obj2vtk`:
 
-Please make sure to update tests as appropriate.
+```
+obj2vtk dataX/output/*.obj
+```
 
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
+Then run Paraview
 
-Please cite the relevant papers if this repository is helpful in your research.
+```
+paraview dataX/output/out_..vtp
+```
 
-Dataset: https://gmd.copernicus.org/articles/14/107/2021/
+and click the play button at the top of the Paraview GUI.
 
-Methods: https://ai4earthscience.github.io/neurips-2020-workshop/papers/ai4earth_neurips_2020_55.pdf
+You can also add the meshes of the obstacle you used in your simulation. To do
+this, just open the `obj` files in Paraview (`obj` files work in Paraview for
+static objects, you cannot visualize a series of `obj` files within Paraview;
+that is why we use `obj2vtk`).

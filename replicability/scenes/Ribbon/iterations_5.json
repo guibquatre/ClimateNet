@@ -1,0 +1,35 @@
+{
+    "Parameters" : {
+        "Frame number" : 200,
+        "LocalGlobal" : 5,
+        "Timestep" : 4.0e-3,
+        "Type" : "friction",
+        "Steps per frame" : 4,
+        "Self-collision" : true,
+        "Self-collision tolerance" : 6.0e-2,
+        "Gravity" : [0.0, 0.0, -9.81]
+    },
+
+    "Friction coefficients" : [
+        [ 0.1, 0.3 ],
+        [ 0.3, 0.0 ]
+    ],
+    "Meshes" : [
+        {
+            "Obj filename" : "../mesh/ribbon.obj",
+            "Area Density" : 0.25,
+            "Bending" : 2.0e-2,
+            "Stretching" : 2.0e1,
+            "Material Identifier" : 0
+        }
+
+    ],
+    "Obstacles" : [
+        {
+            "Type" : "Mesh",
+            "Path" : "../mesh/tree_plane.obj",
+            "Threshold" : 2e-2,
+            "Material Identifier" : 1
+        }
+    ]
+}

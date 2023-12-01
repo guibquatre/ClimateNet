@@ -1,0 +1,44 @@
+{
+    "Parameters" : {
+        "Frame number" : 50,
+        "LocalGlobal" : 20,
+        "Timestep" : 1.0e-3,
+        "Type" : "friction",
+        "Steps per frame" : 16,
+        "Self-collision" : false,
+        "Self-collision tolerance" : 0.0e-2,
+        "Gravity" : [0.0, 0.0, -9.81]
+    },
+
+    "Friction coefficients" : [
+        [ 0.1 ]
+    ],
+    "Meshes" : [
+        {
+            "Obj filename" : "../mesh/analytic/cloth.obj",
+            "Area Density" : 1.0,
+            "Bending" : 2.0e-4,
+            "Stretching" : 2.0e-4,
+            "Material Identifier" : 0
+        }
+
+    ],
+    "Obstacles" : [
+        {
+            "Type" : "Mesh",
+            "Path" : "../mesh/analytic/support.obj",
+            "Threshold" : 1.0e-3,
+            "Material Identifier" : 0
+        }
+    ],
+    "log" : [
+        {
+            "type" : "velocity",
+            "vertices" : [ 0, 1, 2, 3 ]
+        },
+        {
+            "type" : "position",
+            "vertices" : [ 0, 1, 2, 3 ]
+        }
+    ]
+}
